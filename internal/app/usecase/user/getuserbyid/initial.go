@@ -1,8 +1,6 @@
-package getusers
+package getuserbyid
 
-import (
-	"github.com/7-solutions/backend-challenge/internal/app/domain/repository"
-)
+import "github.com/7-solutions/backend-challenge/internal/app/domain/repository"
 
 func New(
 	userRepository repository.UserRepository,

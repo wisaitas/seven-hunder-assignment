@@ -2,7 +2,7 @@ package getusers
 
 import (
 	"github.com/7-solutions/backend-challenge/pkg/httpx"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type QueryParam struct {
@@ -10,7 +10,7 @@ type QueryParam struct {
 }
 
 type Response struct {
-	ID    primitive.ObjectID `json:"id"`
-	Name  string             `json:"name"`
-	Email string             `json:"email"`
+	ID    bson.ObjectID `json:"id"`
+	Name  string        `json:"name"`
+	Email string        `json:"email"`
 }

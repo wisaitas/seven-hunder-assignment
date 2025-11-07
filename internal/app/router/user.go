@@ -24,4 +24,9 @@ func (r *UserRouter) Setup() {
 	userRouter := r.apiRouter.Group("/users")
 
 	userRouter.Get("/", r.userUseCase.GetUsers.Handle)
+	userRouter.Get("/:user_id", r.userUseCase.GetUserByID.Handle)
+
+	userRouter.Patch("/:user_id", r.userUseCase.UpdateUser.Handle)
+
+	userRouter.Delete("/:user_id", r.userUseCase.DeleteUser.Handle)
 }

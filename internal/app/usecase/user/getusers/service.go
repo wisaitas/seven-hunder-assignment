@@ -5,6 +5,7 @@ import (
 	"github.com/7-solutions/backend-challenge/internal/app/domain/repository"
 	"github.com/7-solutions/backend-challenge/pkg/httpx"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type Service interface {
@@ -22,17 +23,13 @@ func NewService(
 }
 
 func (s *service) Service(c *fiber.Ctx, queryParam QueryParam) error {
-	// Build filter
-	filter := s.userRepository.GetFilter(map[string]interface{}{
-		// Add your filter fields here, e.g.:
-		// "name": queryParam.Name,
-		// "email": queryParam.Email,
-	})
+	filter := bson.M{
+		"deleted_at": nil,
+	}
 
 	sortField := "created_at"
 	sortOrder := -1
 
-	// Fetch users with pagination
 	users, hasNext, hasPrev, err := s.userRepository.FindAllPaginated(
 		c,
 		filter,

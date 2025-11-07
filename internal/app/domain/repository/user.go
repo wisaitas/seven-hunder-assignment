@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/7-solutions/backend-challenge/internal/app"
 	"github.com/7-solutions/backend-challenge/internal/app/domain/entity"
 	"github.com/gofiber/fiber/v2"
@@ -12,8 +14,9 @@ import (
 type UserRepository interface {
 	CreateUser(c *fiber.Ctx, user *entity.User) error
 	FindByEmail(c *fiber.Ctx, email string) (*entity.User, error)
-	FindAll(c *fiber.Ctx) ([]*entity.User, error)
 	FindAllPaginated(c *fiber.Ctx, filter bson.M, sortField string, sortOrder int, page, pageSize int) ([]*entity.User, bool, bool, error)
+	FindByID(c *fiber.Ctx, filter bson.M, user *entity.User) error
+	UpdateUser(c *fiber.Ctx, userID bson.ObjectID, currentVersion int, updates bson.M) error
 	GetCollection() *mongo.Collection
 	GetFilter(filters map[string]interface{}) bson.M
 }
@@ -48,37 +51,13 @@ func (r *userRepository) FindByEmail(c *fiber.Ctx, email string) (*entity.User, 
 	return &user, nil
 }
 
-func (r *userRepository) FindAll(c *fiber.Ctx) ([]*entity.User, error) {
-	cursor, err := r.mongodb.Find(c.Context(), bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(c.Context())
-
-	var users []*entity.User
-	for cursor.Next(c.Context()) {
-		var user entity.User
-		if err := cursor.Decode(&user); err != nil {
-			return nil, err
-		}
-		users = append(users, &user)
-	}
-
-	if err := cursor.Err(); err != nil {
-		return nil, err
-	}
-
-	return users, nil
-}
-
 func (r *userRepository) FindAllPaginated(
 	c *fiber.Ctx,
 	filter bson.M,
 	sortField string,
-	sortOrder int, // 1 for ascending, -1 for descending
+	sortOrder int,
 	page, pageSize int,
 ) ([]*entity.User, bool, bool, error) {
-	// Fetch pageSize + 1 to determine if there's a next page
 	limit := int64(pageSize + 1)
 	skip := int64((page - 1) * pageSize)
 
@@ -106,21 +85,20 @@ func (r *userRepository) FindAllPaginated(
 		return nil, false, false, err
 	}
 
-	// Determine hasNext
 	hasNext := len(users) > pageSize
-
-	// Determine hasPrev
 	hasPrev := page > 1
 
 	return users, hasNext, hasPrev, nil
 }
 
-// GetCollection returns the MongoDB collection for probe queries
+func (r *userRepository) FindByID(c *fiber.Ctx, filter bson.M, user *entity.User) error {
+	return r.mongodb.FindOne(c.Context(), filter).Decode(user)
+}
+
 func (r *userRepository) GetCollection() *mongo.Collection {
 	return r.mongodb
 }
 
-// GetFilter builds MongoDB filter from parameters
 func (r *userRepository) GetFilter(filters map[string]interface{}) bson.M {
 	filter := bson.M{}
 	for key, value := range filters {
@@ -129,4 +107,27 @@ func (r *userRepository) GetFilter(filters map[string]interface{}) bson.M {
 		}
 	}
 	return filter
+}
+
+func (r *userRepository) UpdateUser(c *fiber.Ctx, userID bson.ObjectID, currentVersion int, updates bson.M) error {
+	result, err := r.mongodb.UpdateOne(
+		c.Context(),
+		bson.M{
+			"_id":     userID,
+			"version": currentVersion,
+		},
+		bson.M{
+			"$set": updates,
+			"$inc": bson.M{"version": 1},
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return errors.New("version conflict or user not found")
+	}
+
+	return nil
 }

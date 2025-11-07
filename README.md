@@ -1,6 +1,7 @@
 # Backend Golang Coding Test
 
 ## Objective
+
 Build a simple RESTful API in Golang that manages a list of users. Use MongoDB for persistence, JWT for authentication, and follow clean code practices.
 
 ---
@@ -8,7 +9,9 @@ Build a simple RESTful API in Golang that manages a list of users. Use MongoDB f
 ## Requirements
 
 ### 1. User Model
+
 Each user should have:
+
 - `ID` (auto-generated)
 - `Name` (string)
 - `Email` (string, unique)
@@ -20,10 +23,12 @@ Each user should have:
 ### 2. Authentication
 
 #### Functions
+
 - Register a new user.
 - Authenticate user and return a JWT.
 
 #### JWT
+
 - Use JWT for protecting endpoints.
 - Use middleware to validate tokens.
 - Use HMAC (HS256) with a secret key.
@@ -41,22 +46,26 @@ Each user should have:
 ---
 
 ### 4. MongoDB Integration
+
 - Use the official Go MongoDB driver.
 - Store and retrieve users from MongoDB.
 
 ---
 
 ### 5. Middleware
+
 - Logging middleware that logs HTTP method, path, and execution time.
 
 ---
 
 ### 6. Concurrency Task
+
 - Run a background goroutine every 10 seconds that logs the number of users in the DB.
 
 ---
 
 ### 7. Testing
+
 Write unit tests
 
 Use Go’s `testing` package. Mock MongoDB where possible.

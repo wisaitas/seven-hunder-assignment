@@ -42,7 +42,7 @@ func New() *App {
 
 	newMiddleware(app, client)
 	repository := newRepository(client)
-	useCase := newUseCase(repository, sdk)
+	useCase := newUseCase(client, repository, sdk)
 	newRouter(app, useCase)
 
 	return &App{

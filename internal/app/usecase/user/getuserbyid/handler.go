@@ -1,8 +1,11 @@
-package getusers
+package getuserbyid
 
 import (
+	"errors"
+
 	"github.com/7-solutions/backend-challenge/pkg/httpx"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type Handler struct {
@@ -16,14 +19,15 @@ func newHandler(
 }
 
 func (h *Handler) Handle(c *fiber.Ctx) error {
-	queryParam := QueryParam{}
-	if err := c.QueryParser(&queryParam); err != nil {
+	param := c.Params("user_id")
+	if param == "" {
+		return httpx.NewErrorResponse[any](c, fiber.StatusBadRequest, errors.New("user ID is required"))
+	}
+
+	userID, err := bson.ObjectIDFromHex(param)
+	if err != nil {
 		return httpx.NewErrorResponse[any](c, fiber.StatusBadRequest, err)
 	}
 
-	if err := httpx.SetDefaultPagination(&queryParam); err != nil {
-		return httpx.NewErrorResponse[any](c, fiber.StatusBadRequest, err)
-	}
-
-	return h.service.Service(c, queryParam)
+	return h.service.Service(c, userID)
 }
