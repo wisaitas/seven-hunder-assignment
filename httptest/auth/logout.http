@@ -1,2 +1,4 @@
-POST http://localhost:8080/api/v1/auth/logout
+@baseUrl = http://localhost:8080
+
+POST {{baseUrl}}/api/v1/auth/logout
 Authorization: Bearer eyJhbGciOiJkaXIiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwidHlwIjoiSldUIn0..i06U4Ujf-Arjp9mb.TPSxhPgakAW-MrcdMM0WojvqGfH6MgLheOWjj_L8LT9Z95YOcbS8GepI7nycyZamw3g2vaYsIPeKRWbxes_g6OMQL2Aa44v0TD6WrxI6x95gSHdpoPtJyqybwBNr1YlhZfOitjSAtfHV3RE0R7tohh0O8EoQtZreQBvWsbfWU7QpXIp8xCEjnPCQNs1duiWYkQ.iKf81MtQcUdySe70wsaoag

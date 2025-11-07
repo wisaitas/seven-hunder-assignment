@@ -90,7 +90,8 @@ func (i *App) backgroundProcess() {
 	for {
 		time.Sleep(10 * time.Second)
 
-		count, err := i.Client.mongoDB.Database(app.Config.MongoDB.Database).Collection(entity.User{}.CollectionName()).CountDocuments(context.Background(), bson.M{})
+		count, err := i.Client.mongoDB.Database(app.Config.MongoDB.Database).Collection(entity.User{}.CollectionName()).
+			CountDocuments(context.Background(), bson.M{"deleted_at": nil})
 		if err != nil {
 			log.Fatalf("failed to count users: %v", err)
 		}

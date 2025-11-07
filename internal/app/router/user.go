@@ -26,6 +26,8 @@ func (r *UserRouter) Setup() {
 	userRouter.Get("/", r.userUseCase.GetUsersMiddleware, r.userUseCase.GetUsers.Handle)
 	userRouter.Get("/:user_id", r.userUseCase.GetUserByIDMiddleware, r.userUseCase.GetUserByID.Handle)
 
+	userRouter.Post("/", r.userUseCase.CreateUserMiddleware, r.userUseCase.CreateUser.Handle)
+
 	userRouter.Patch("/:user_id", r.userUseCase.UpdateUserMiddleware, r.userUseCase.UpdateUser.Handle)
 
 	userRouter.Delete("/:user_id", r.userUseCase.DeleteUserMiddleware, r.userUseCase.DeleteUser.Handle)

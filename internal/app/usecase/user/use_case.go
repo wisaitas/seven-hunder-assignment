@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/7-solutions/backend-challenge/internal/app/domain/repository"
+	"github.com/7-solutions/backend-challenge/internal/app/usecase/user/createuser"
 	"github.com/7-solutions/backend-challenge/internal/app/usecase/user/deleteuser"
 	"github.com/7-solutions/backend-challenge/internal/app/usecase/user/getuserbyid"
 	"github.com/7-solutions/backend-challenge/internal/app/usecase/user/getusers"
@@ -13,11 +14,13 @@ import (
 )
 
 type UseCase struct {
-	GetUsers           *getusers.Handler
-	GetUsersMiddleware fiber.Handler
-
+	GetUsers              *getusers.Handler
+	GetUsersMiddleware    fiber.Handler
 	GetUserByID           *getuserbyid.Handler
 	GetUserByIDMiddleware fiber.Handler
+
+	CreateUser           *createuser.Handler
+	CreateUserMiddleware fiber.Handler
 
 	UpdateUser           *updateuser.Handler
 	UpdateUserMiddleware fiber.Handler
@@ -33,11 +36,13 @@ func NewUseCase(
 	validator validatorx.Validator,
 ) *UseCase {
 	return &UseCase{
-		GetUsers:           getusers.New(userRepository),
-		GetUsersMiddleware: getusers.NewMiddleware(jwt, redis),
-
+		GetUsers:              getusers.New(userRepository),
+		GetUsersMiddleware:    getusers.NewMiddleware(jwt, redis),
 		GetUserByID:           getuserbyid.New(userRepository),
 		GetUserByIDMiddleware: getuserbyid.NewMiddleware(jwt, redis),
+
+		CreateUser:           createuser.New(userRepository, validator),
+		CreateUserMiddleware: createuser.NewMiddleware(jwt, redis),
 
 		UpdateUser:           updateuser.New(userRepository, validator),
 		UpdateUserMiddleware: updateuser.NewMiddleware(jwt, redis),

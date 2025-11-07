@@ -1,1 +1,3 @@
-GET http://localhost:8080/api/v1/readyz
+@baseUrl = http://localhost:8080
+
+GET {{baseUrl}}/api/v1/readyz

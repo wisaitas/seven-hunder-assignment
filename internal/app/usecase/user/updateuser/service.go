@@ -48,12 +48,16 @@ func (s *service) Service(c *fiber.Ctx, userID bson.ObjectID, request *Request) 
 
 	if request.Email != nil {
 		existingUser := &entity.User{}
-		if err := s.userRepository.FindByEmail(c, *request.Email, existingUser); err != nil {
+		err := s.userRepository.FindByEmail(c, *request.Email, existingUser)
+
+		if err != nil && err != mongo.ErrNoDocuments {
 			return httpx.NewErrorResponse[any](c, fiber.StatusInternalServerError, err)
 		}
-		if existingUser.ID != userID {
+
+		if err == nil && existingUser.ID != userID {
 			return httpx.NewErrorResponse[any](c, fiber.StatusConflict, errors.New("email already exists"))
 		}
+
 		updates["email"] = *request.Email
 	}
 

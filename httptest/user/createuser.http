@@ -10,6 +10,13 @@ Content-Type: application/json
     "password": "password"
 }
 
-### Get Users
-GET {{baseUrl}}/api/v1/users?page=1&page_size=10
+### create user
+POST {{baseUrl}}/api/v1/users
+Content-Type: application/json
 Authorization: Bearer {{login.response.body.data.access_token}}
+
+{
+    "name": "John Doe From Create User",
+    "email": "john.doe.from.create.user@example.com",
+    "password": "password"
+}

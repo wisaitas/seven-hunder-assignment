@@ -1,31 +1,60 @@
-# step run
+# prepare
 
-1. start docker
+1. start docker local
 
-2. docker-compose up -d
+2. run
 
-3, install extension `REST Client`
+```
+docker-compose up -d
+
+```
+
+3. install extension `REST Client`
 
 4. all api in folder httptest
 
-# test create user (register)
+# test register
 
-click register.http click create user atleast 2 users
+- click register.http
+- call register 2 users
+
+# test login
+
+- click login.http
+- use email and password api register for login click login.http
 
 # test get users
 
-click getusers.http call api
+- click getusers.http
+- call login api
+- call getusers api
 
 # test get user by id
 
-use data api get users copy id for call this api click getuserbyid.http replace user_id parameter then call api
+- copy id from api get users
+- click getuserbyid.http
+- replace parameter path
+- call login api
+- call getuserbyid api
 
 # test update user
 
-- use data api get users copy id replace user_id parameter updateuser.http then call api
-- test get users again see result change after update
+- copy id from api get users
+- click updateuser.http
+- replace parameter path
+- call login api
+- call updateuser api
 
 # test delete user (soft delete)
 
-- use data api get users copy id replace user_id parameter deleteuser.http then call api
-- test get users again see result change after delete
+- copy id from api get users
+- click deleteuser.http
+- replace parameter path
+- call login api
+- call deleteuser api
+
+# test create user
+
+- click createuser.http
+- call login api
+- call createuser api
