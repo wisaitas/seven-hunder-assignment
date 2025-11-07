@@ -11,6 +11,8 @@ import (
 	"github.com/7-solutions/backend-challenge/internal/app/domain/entity"
 	"github.com/7-solutions/backend-challenge/internal/app/domain/repository"
 	"github.com/7-solutions/backend-challenge/internal/app/usecase/auth/login"
+	"github.com/7-solutions/backend-challenge/pkg/db/redisx"
+	"github.com/7-solutions/backend-challenge/pkg/jwtx"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -18,14 +20,13 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"golang.org/x/crypto/bcrypt"
-
-	redisx "github.com/7-solutions/backend-challenge/pkg/db/redisx"
 )
 
 type loginTestSuite struct {
 	suite.Suite
 	mockUserRepo *repository.MockUserRepository
 	mockRedis    *redisx.MockRedis
+	mockJwt      *jwtx.MockJwt
 	service      login.Service
 	app          *fiber.App
 }
@@ -33,13 +34,14 @@ type loginTestSuite struct {
 func (s *loginTestSuite) SetupTest() {
 	s.mockUserRepo = repository.NewMockUserRepository(s.T())
 	s.mockRedis = redisx.NewMockRedis(s.T())
-	s.service = login.NewService(s.mockUserRepo, s.mockRedis)
+	s.mockJwt = jwtx.NewMockJwt(s.T())
+	s.service = login.NewService(s.mockUserRepo, s.mockRedis, s.mockJwt)
 	s.app = fiber.New()
 
 	// Set up default config for testing
-	app.Config.JWT.Secret = "test-secret"
-	app.Config.JWT.AccessTTL = 15  // 15 minutes
-	app.Config.JWT.RefreshTTL = 24 // 24 hours
+	app.Config.JWT.Secret = "test-secret-key-32-bytes-long!" // 32 bytes for AES-256
+	app.Config.JWT.AccessTTL = 15                            // 15 minutes
+	app.Config.JWT.RefreshTTL = 24                           // 24 hours
 }
 
 // Helper function to create fiber context for testing
@@ -96,6 +98,24 @@ func (s *loginTestSuite) TestLoginSuccess() {
 		return len(keys) == 1 && keys[0] == blockCountKey
 	})).Return(nil)
 
+	// Mock JWT Generate for access token
+	s.mockJwt.On("Generate",
+		mock.MatchedBy(func(claims interface{}) bool {
+			ec, ok := claims.(entity.ExternalContext)
+			return ok && ec.Subject == testUser.ID.Hex()
+		}),
+		app.Config.JWT.Secret).
+		Return("encrypted-access-token", nil).Once()
+
+	// Mock JWT Generate for refresh token
+	s.mockJwt.On("Generate",
+		mock.MatchedBy(func(claims interface{}) bool {
+			ec, ok := claims.(entity.ExternalContext)
+			return ok && ec.Subject == testUser.ID.Hex()
+		}),
+		app.Config.JWT.Secret).
+		Return("encrypted-refresh-token", nil).Once()
+
 	// Mock Redis Set for access token
 	s.mockRedis.On("Set", mock.Anything,
 		accessTokenKey,
@@ -115,6 +135,7 @@ func (s *loginTestSuite) TestLoginSuccess() {
 	s.Require().NoError(err)
 	s.mockUserRepo.AssertExpectations(s.T())
 	s.mockRedis.AssertExpectations(s.T())
+	s.mockJwt.AssertExpectations(s.T())
 }
 
 func (s *loginTestSuite) TestLoginUserNotFound() {
@@ -150,8 +171,8 @@ func (s *loginTestSuite) TestLoginUserNotFound() {
 	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert - เปลี่ยนจาก check error เป็น check status code
-	s.Require().NoError(err) // เพราะ fiber write JSON สำเร็จ จะ return nil
+	// Assert
+	s.Require().NoError(err)
 	s.Require().Equal(fiber.StatusNotFound, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
 	s.mockRedis.AssertExpectations(s.T())
@@ -356,6 +377,14 @@ func (s *loginTestSuite) TestLoginRedisSetError() {
 		return len(keys) == 1 && keys[0] == blockCountKey
 	})).Return(nil)
 
+	// Mock JWT Generate for access token
+	s.mockJwt.On("Generate", mock.Anything, app.Config.JWT.Secret).
+		Return("encrypted-access-token", nil).Once()
+
+	// Mock JWT Generate for refresh token (generated before Redis Set is called)
+	s.mockJwt.On("Generate", mock.Anything, app.Config.JWT.Secret).
+		Return("encrypted-refresh-token", nil).Once()
+
 	// Mock Redis Set for access token - return error
 	s.mockRedis.On("Set", mock.Anything,
 		accessTokenKey,
@@ -370,6 +399,7 @@ func (s *loginTestSuite) TestLoginRedisSetError() {
 	s.Require().Equal(fiber.StatusInternalServerError, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
 	s.mockRedis.AssertExpectations(s.T())
+	s.mockJwt.AssertExpectations(s.T())
 }
 
 func (s *loginTestSuite) TestLoginRedisDelError() {
@@ -513,6 +543,13 @@ func (s *loginTestSuite) TestLoginValidateTokenContent() {
 		return len(keys) == 1 && keys[0] == blockCountKey
 	})).Return(nil)
 
+	// Mock JWT Generate - return tokens
+	s.mockJwt.On("Generate", mock.Anything, app.Config.JWT.Secret).
+		Return("encrypted-access-token", nil).Once()
+
+	s.mockJwt.On("Generate", mock.Anything, app.Config.JWT.Secret).
+		Return("encrypted-refresh-token", nil).Once()
+
 	// Mock Redis Set for access token - capture value
 	s.mockRedis.On("Set", mock.Anything,
 		accessTokenKey,
@@ -551,6 +588,7 @@ func (s *loginTestSuite) TestLoginValidateTokenContent() {
 
 	s.mockUserRepo.AssertExpectations(s.T())
 	s.mockRedis.AssertExpectations(s.T())
+	s.mockJwt.AssertExpectations(s.T())
 }
 
 func TestLoginTestSuite(t *testing.T) {

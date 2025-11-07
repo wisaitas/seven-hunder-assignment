@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -37,116 +36,6 @@ type MockClaims_Expecter struct {
 
 func (_m *MockClaims) EXPECT() *MockClaims_Expecter {
 	return &MockClaims_Expecter{mock: &_m.Mock}
-}
-
-// GetAudience provides a mock function for the type MockClaims
-func (_mock *MockClaims) GetAudience() (jwt.ClaimStrings, error) {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAudience")
-	}
-
-	var r0 jwt.ClaimStrings
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func() (jwt.ClaimStrings, error)); ok {
-		return returnFunc()
-	}
-	if returnFunc, ok := ret.Get(0).(func() jwt.ClaimStrings); ok {
-		r0 = returnFunc()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(jwt.ClaimStrings)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func() error); ok {
-		r1 = returnFunc()
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockClaims_GetAudience_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAudience'
-type MockClaims_GetAudience_Call struct {
-	*mock.Call
-}
-
-// GetAudience is a helper method to define mock.On call
-func (_e *MockClaims_Expecter) GetAudience() *MockClaims_GetAudience_Call {
-	return &MockClaims_GetAudience_Call{Call: _e.mock.On("GetAudience")}
-}
-
-func (_c *MockClaims_GetAudience_Call) Run(run func()) *MockClaims_GetAudience_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockClaims_GetAudience_Call) Return(claimStrings jwt.ClaimStrings, err error) *MockClaims_GetAudience_Call {
-	_c.Call.Return(claimStrings, err)
-	return _c
-}
-
-func (_c *MockClaims_GetAudience_Call) RunAndReturn(run func() (jwt.ClaimStrings, error)) *MockClaims_GetAudience_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetExpirationTime provides a mock function for the type MockClaims
-func (_mock *MockClaims) GetExpirationTime() (*jwt.NumericDate, error) {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetExpirationTime")
-	}
-
-	var r0 *jwt.NumericDate
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func() (*jwt.NumericDate, error)); ok {
-		return returnFunc()
-	}
-	if returnFunc, ok := ret.Get(0).(func() *jwt.NumericDate); ok {
-		r0 = returnFunc()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*jwt.NumericDate)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func() error); ok {
-		r1 = returnFunc()
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockClaims_GetExpirationTime_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetExpirationTime'
-type MockClaims_GetExpirationTime_Call struct {
-	*mock.Call
-}
-
-// GetExpirationTime is a helper method to define mock.On call
-func (_e *MockClaims_Expecter) GetExpirationTime() *MockClaims_GetExpirationTime_Call {
-	return &MockClaims_GetExpirationTime_Call{Call: _e.mock.On("GetExpirationTime")}
-}
-
-func (_c *MockClaims_GetExpirationTime_Call) Run(run func()) *MockClaims_GetExpirationTime_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockClaims_GetExpirationTime_Call) Return(numericDate *jwt.NumericDate, err error) *MockClaims_GetExpirationTime_Call {
-	_c.Call.Return(numericDate, err)
-	return _c
-}
-
-func (_c *MockClaims_GetExpirationTime_Call) RunAndReturn(run func() (*jwt.NumericDate, error)) *MockClaims_GetExpirationTime_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // GetID provides a mock function for the type MockClaims
@@ -189,222 +78,6 @@ func (_c *MockClaims_GetID_Call) Return(s string) *MockClaims_GetID_Call {
 }
 
 func (_c *MockClaims_GetID_Call) RunAndReturn(run func() string) *MockClaims_GetID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetIssuedAt provides a mock function for the type MockClaims
-func (_mock *MockClaims) GetIssuedAt() (*jwt.NumericDate, error) {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetIssuedAt")
-	}
-
-	var r0 *jwt.NumericDate
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func() (*jwt.NumericDate, error)); ok {
-		return returnFunc()
-	}
-	if returnFunc, ok := ret.Get(0).(func() *jwt.NumericDate); ok {
-		r0 = returnFunc()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*jwt.NumericDate)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func() error); ok {
-		r1 = returnFunc()
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockClaims_GetIssuedAt_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetIssuedAt'
-type MockClaims_GetIssuedAt_Call struct {
-	*mock.Call
-}
-
-// GetIssuedAt is a helper method to define mock.On call
-func (_e *MockClaims_Expecter) GetIssuedAt() *MockClaims_GetIssuedAt_Call {
-	return &MockClaims_GetIssuedAt_Call{Call: _e.mock.On("GetIssuedAt")}
-}
-
-func (_c *MockClaims_GetIssuedAt_Call) Run(run func()) *MockClaims_GetIssuedAt_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockClaims_GetIssuedAt_Call) Return(numericDate *jwt.NumericDate, err error) *MockClaims_GetIssuedAt_Call {
-	_c.Call.Return(numericDate, err)
-	return _c
-}
-
-func (_c *MockClaims_GetIssuedAt_Call) RunAndReturn(run func() (*jwt.NumericDate, error)) *MockClaims_GetIssuedAt_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetIssuer provides a mock function for the type MockClaims
-func (_mock *MockClaims) GetIssuer() (string, error) {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetIssuer")
-	}
-
-	var r0 string
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func() (string, error)); ok {
-		return returnFunc()
-	}
-	if returnFunc, ok := ret.Get(0).(func() string); ok {
-		r0 = returnFunc()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-	if returnFunc, ok := ret.Get(1).(func() error); ok {
-		r1 = returnFunc()
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockClaims_GetIssuer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetIssuer'
-type MockClaims_GetIssuer_Call struct {
-	*mock.Call
-}
-
-// GetIssuer is a helper method to define mock.On call
-func (_e *MockClaims_Expecter) GetIssuer() *MockClaims_GetIssuer_Call {
-	return &MockClaims_GetIssuer_Call{Call: _e.mock.On("GetIssuer")}
-}
-
-func (_c *MockClaims_GetIssuer_Call) Run(run func()) *MockClaims_GetIssuer_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockClaims_GetIssuer_Call) Return(s string, err error) *MockClaims_GetIssuer_Call {
-	_c.Call.Return(s, err)
-	return _c
-}
-
-func (_c *MockClaims_GetIssuer_Call) RunAndReturn(run func() (string, error)) *MockClaims_GetIssuer_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetNotBefore provides a mock function for the type MockClaims
-func (_mock *MockClaims) GetNotBefore() (*jwt.NumericDate, error) {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetNotBefore")
-	}
-
-	var r0 *jwt.NumericDate
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func() (*jwt.NumericDate, error)); ok {
-		return returnFunc()
-	}
-	if returnFunc, ok := ret.Get(0).(func() *jwt.NumericDate); ok {
-		r0 = returnFunc()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*jwt.NumericDate)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func() error); ok {
-		r1 = returnFunc()
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockClaims_GetNotBefore_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNotBefore'
-type MockClaims_GetNotBefore_Call struct {
-	*mock.Call
-}
-
-// GetNotBefore is a helper method to define mock.On call
-func (_e *MockClaims_Expecter) GetNotBefore() *MockClaims_GetNotBefore_Call {
-	return &MockClaims_GetNotBefore_Call{Call: _e.mock.On("GetNotBefore")}
-}
-
-func (_c *MockClaims_GetNotBefore_Call) Run(run func()) *MockClaims_GetNotBefore_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockClaims_GetNotBefore_Call) Return(numericDate *jwt.NumericDate, err error) *MockClaims_GetNotBefore_Call {
-	_c.Call.Return(numericDate, err)
-	return _c
-}
-
-func (_c *MockClaims_GetNotBefore_Call) RunAndReturn(run func() (*jwt.NumericDate, error)) *MockClaims_GetNotBefore_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetSubject provides a mock function for the type MockClaims
-func (_mock *MockClaims) GetSubject() (string, error) {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSubject")
-	}
-
-	var r0 string
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func() (string, error)); ok {
-		return returnFunc()
-	}
-	if returnFunc, ok := ret.Get(0).(func() string); ok {
-		r0 = returnFunc()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-	if returnFunc, ok := ret.Get(1).(func() error); ok {
-		r1 = returnFunc()
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockClaims_GetSubject_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSubject'
-type MockClaims_GetSubject_Call struct {
-	*mock.Call
-}
-
-// GetSubject is a helper method to define mock.On call
-func (_e *MockClaims_Expecter) GetSubject() *MockClaims_GetSubject_Call {
-	return &MockClaims_GetSubject_Call{Call: _e.mock.On("GetSubject")}
-}
-
-func (_c *MockClaims_GetSubject_Call) Run(run func()) *MockClaims_GetSubject_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockClaims_GetSubject_Call) Return(s string, err error) *MockClaims_GetSubject_Call {
-	_c.Call.Return(s, err)
-	return _c
-}
-
-func (_c *MockClaims_GetSubject_Call) RunAndReturn(run func() (string, error)) *MockClaims_GetSubject_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -554,7 +227,7 @@ func (_c *MockJwt_ExtractTokenFromHeader_Call) RunAndReturn(run func(c *fiber.Ct
 }
 
 // Generate provides a mock function for the type MockJwt
-func (_mock *MockJwt) Generate(claims Claims, secret string) (string, error) {
+func (_mock *MockJwt) Generate(claims interface{}, secret string) (string, error) {
 	ret := _mock.Called(claims, secret)
 
 	if len(ret) == 0 {
@@ -563,15 +236,15 @@ func (_mock *MockJwt) Generate(claims Claims, secret string) (string, error) {
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(Claims, string) (string, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(interface{}, string) (string, error)); ok {
 		return returnFunc(claims, secret)
 	}
-	if returnFunc, ok := ret.Get(0).(func(Claims, string) string); ok {
+	if returnFunc, ok := ret.Get(0).(func(interface{}, string) string); ok {
 		r0 = returnFunc(claims, secret)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(Claims, string) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(interface{}, string) error); ok {
 		r1 = returnFunc(claims, secret)
 	} else {
 		r1 = ret.Error(1)
@@ -585,17 +258,17 @@ type MockJwt_Generate_Call struct {
 }
 
 // Generate is a helper method to define mock.On call
-//   - claims Claims
+//   - claims interface{}
 //   - secret string
 func (_e *MockJwt_Expecter) Generate(claims interface{}, secret interface{}) *MockJwt_Generate_Call {
 	return &MockJwt_Generate_Call{Call: _e.mock.On("Generate", claims, secret)}
 }
 
-func (_c *MockJwt_Generate_Call) Run(run func(claims Claims, secret string)) *MockJwt_Generate_Call {
+func (_c *MockJwt_Generate_Call) Run(run func(claims interface{}, secret string)) *MockJwt_Generate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 Claims
+		var arg0 interface{}
 		if args[0] != nil {
-			arg0 = args[0].(Claims)
+			arg0 = args[0].(interface{})
 		}
 		var arg1 string
 		if args[1] != nil {
@@ -614,37 +287,26 @@ func (_c *MockJwt_Generate_Call) Return(s string, err error) *MockJwt_Generate_C
 	return _c
 }
 
-func (_c *MockJwt_Generate_Call) RunAndReturn(run func(claims Claims, secret string) (string, error)) *MockJwt_Generate_Call {
+func (_c *MockJwt_Generate_Call) RunAndReturn(run func(claims interface{}, secret string) (string, error)) *MockJwt_Generate_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Parse provides a mock function for the type MockJwt
-func (_mock *MockJwt) Parse(tokenString string, claims jwt.Claims, secret string) (jwt.Claims, error) {
-	ret := _mock.Called(tokenString, claims, secret)
+func (_mock *MockJwt) Parse(tokenString string, secret string, result interface{}) error {
+	ret := _mock.Called(tokenString, secret, result)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Parse")
 	}
 
-	var r0 jwt.Claims
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string, jwt.Claims, string) (jwt.Claims, error)); ok {
-		return returnFunc(tokenString, claims, secret)
-	}
-	if returnFunc, ok := ret.Get(0).(func(string, jwt.Claims, string) jwt.Claims); ok {
-		r0 = returnFunc(tokenString, claims, secret)
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(string, string, interface{}) error); ok {
+		r0 = returnFunc(tokenString, secret, result)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(jwt.Claims)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(string, jwt.Claims, string) error); ok {
-		r1 = returnFunc(tokenString, claims, secret)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockJwt_Parse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Parse'
@@ -654,25 +316,25 @@ type MockJwt_Parse_Call struct {
 
 // Parse is a helper method to define mock.On call
 //   - tokenString string
-//   - claims jwt.Claims
 //   - secret string
-func (_e *MockJwt_Expecter) Parse(tokenString interface{}, claims interface{}, secret interface{}) *MockJwt_Parse_Call {
-	return &MockJwt_Parse_Call{Call: _e.mock.On("Parse", tokenString, claims, secret)}
+//   - result interface{}
+func (_e *MockJwt_Expecter) Parse(tokenString interface{}, secret interface{}, result interface{}) *MockJwt_Parse_Call {
+	return &MockJwt_Parse_Call{Call: _e.mock.On("Parse", tokenString, secret, result)}
 }
 
-func (_c *MockJwt_Parse_Call) Run(run func(tokenString string, claims jwt.Claims, secret string)) *MockJwt_Parse_Call {
+func (_c *MockJwt_Parse_Call) Run(run func(tokenString string, secret string, result interface{})) *MockJwt_Parse_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
 			arg0 = args[0].(string)
 		}
-		var arg1 jwt.Claims
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(jwt.Claims)
+			arg1 = args[1].(string)
 		}
-		var arg2 string
+		var arg2 interface{}
 		if args[2] != nil {
-			arg2 = args[2].(string)
+			arg2 = args[2].(interface{})
 		}
 		run(
 			arg0,
@@ -683,27 +345,27 @@ func (_c *MockJwt_Parse_Call) Run(run func(tokenString string, claims jwt.Claims
 	return _c
 }
 
-func (_c *MockJwt_Parse_Call) Return(claims1 jwt.Claims, err error) *MockJwt_Parse_Call {
-	_c.Call.Return(claims1, err)
+func (_c *MockJwt_Parse_Call) Return(err error) *MockJwt_Parse_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockJwt_Parse_Call) RunAndReturn(run func(tokenString string, claims jwt.Claims, secret string) (jwt.Claims, error)) *MockJwt_Parse_Call {
+func (_c *MockJwt_Parse_Call) RunAndReturn(run func(tokenString string, secret string, result interface{}) error) *MockJwt_Parse_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ValidateToken provides a mock function for the type MockJwt
-func (_mock *MockJwt) ValidateToken(tokenString string, claims jwt.Claims, secret string) error {
-	ret := _mock.Called(tokenString, claims, secret)
+func (_mock *MockJwt) ValidateToken(tokenString string, secret string) error {
+	ret := _mock.Called(tokenString, secret)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ValidateToken")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(string, jwt.Claims, string) error); ok {
-		r0 = returnFunc(tokenString, claims, secret)
+	if returnFunc, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = returnFunc(tokenString, secret)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -717,30 +379,24 @@ type MockJwt_ValidateToken_Call struct {
 
 // ValidateToken is a helper method to define mock.On call
 //   - tokenString string
-//   - claims jwt.Claims
 //   - secret string
-func (_e *MockJwt_Expecter) ValidateToken(tokenString interface{}, claims interface{}, secret interface{}) *MockJwt_ValidateToken_Call {
-	return &MockJwt_ValidateToken_Call{Call: _e.mock.On("ValidateToken", tokenString, claims, secret)}
+func (_e *MockJwt_Expecter) ValidateToken(tokenString interface{}, secret interface{}) *MockJwt_ValidateToken_Call {
+	return &MockJwt_ValidateToken_Call{Call: _e.mock.On("ValidateToken", tokenString, secret)}
 }
 
-func (_c *MockJwt_ValidateToken_Call) Run(run func(tokenString string, claims jwt.Claims, secret string)) *MockJwt_ValidateToken_Call {
+func (_c *MockJwt_ValidateToken_Call) Run(run func(tokenString string, secret string)) *MockJwt_ValidateToken_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
 			arg0 = args[0].(string)
 		}
-		var arg1 jwt.Claims
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(jwt.Claims)
-		}
-		var arg2 string
-		if args[2] != nil {
-			arg2 = args[2].(string)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -751,7 +407,7 @@ func (_c *MockJwt_ValidateToken_Call) Return(err error) *MockJwt_ValidateToken_C
 	return _c
 }
 
-func (_c *MockJwt_ValidateToken_Call) RunAndReturn(run func(tokenString string, claims jwt.Claims, secret string) error) *MockJwt_ValidateToken_Call {
+func (_c *MockJwt_ValidateToken_Call) RunAndReturn(run func(tokenString string, secret string) error) *MockJwt_ValidateToken_Call {
 	_c.Call.Return(run)
 	return _c
 }

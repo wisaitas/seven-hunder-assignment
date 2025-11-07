@@ -1,11 +1,17 @@
 package entity
 
 import (
-	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
 type ExternalContext struct {
-	jwt.RegisteredClaims
+	Subject   string    `json:"sub"`
+	ExpiresAt time.Time `json:"exp"`
+	IssuedAt  time.Time `json:"iat"`
+	NotBefore time.Time `json:"nbf,omitempty"`
+	Issuer    string    `json:"iss,omitempty"`
+	Audience  []string  `json:"aud,omitempty"`
+	ID        string    `json:"jti,omitempty"`
 }
 
 type UserContext struct {

@@ -56,7 +56,7 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=password
       - REDIS_DB=0
-      - JWT_SECRET=secret-key-compose
+      - JWT_SECRET=83d99c3dc3aedc05235b574a97242e44
       - JWT_ACCESS_TTL=15
       - JWT_REFRESH_TTL=24
     container_name: app

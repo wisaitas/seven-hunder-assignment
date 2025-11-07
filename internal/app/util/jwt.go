@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/7-solutions/backend-challenge/internal/app/domain/entity"
 	"github.com/7-solutions/backend-challenge/pkg/db/redisx"
 	"github.com/7-solutions/backend-challenge/pkg/jwtx"
-	jwtLib "github.com/golang-jwt/jwt/v5"
 	redisLib "github.com/redis/go-redis/v9"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,9 +24,14 @@ func AuthAccessToken(c *fiber.Ctx, redis redisx.Redis, jwt jwtx.Jwt, secret stri
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 
 	var tokenContext entity.ExternalContext
-	_, err := jwt.Parse(token, &tokenContext, secret)
+	err := jwt.Parse(token, secret, &tokenContext)
 	if err != nil {
 		return fmt.Errorf("[util-auth] %w", err)
+	}
+
+	// ตรวจสอบว่า token หมดอายุหรือไม่
+	if time.Now().After(tokenContext.ExpiresAt) {
+		return fmt.Errorf("[util-auth] token expired")
 	}
 
 	userContextJSON, err := redis.Get(context.Background(), fmt.Sprintf("access_token:%s", tokenContext.Subject))
@@ -56,9 +61,14 @@ func AuthRefreshToken(c *fiber.Ctx, redis redisx.Redis, jwt jwtx.Jwt, secret str
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 
 	var tokenContext entity.ExternalContext
-	_, err := jwt.Parse(token, &tokenContext, secret)
+	err := jwt.Parse(token, secret, &tokenContext)
 	if err != nil {
 		return fmt.Errorf("[util-auth] %w", err)
+	}
+
+	// ตรวจสอบว่า token หมดอายุหรือไม่
+	if time.Now().After(tokenContext.ExpiresAt) {
+		return fmt.Errorf("[util-auth] token expired")
 	}
 
 	userContextJSON, err := redis.Get(context.Background(), fmt.Sprintf("refresh_token:%s", tokenContext.Subject))
@@ -79,10 +89,8 @@ func AuthRefreshToken(c *fiber.Ctx, redis redisx.Redis, jwt jwtx.Jwt, secret str
 	return nil
 }
 
-func GenerateToken(data entity.ExternalContext, secret string) (string, error) {
-	token := jwtLib.NewWithClaims(jwtLib.SigningMethodHS256, data)
-
-	tokenString, err := token.SignedString([]byte(secret))
+func GenerateToken(data entity.ExternalContext, jwt jwtx.Jwt, secret string) (string, error) {
+	tokenString, err := jwt.Generate(data, secret)
 	if err != nil {
 		return "", fmt.Errorf("[util-auth] %w", err)
 	}

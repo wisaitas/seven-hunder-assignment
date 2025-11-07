@@ -4,12 +4,13 @@ go 1.25.1
 
 require (
 	github.com/caarlos0/env/v11 v11.3.1
+	github.com/go-jose/go-jose/v4 v4.1.3
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/gofiber/fiber/v2 v2.52.9
-	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.16.0
 	github.com/stretchr/testify v1.11.1
+	github.com/valyala/fasthttp v1.51.0
 	go.mongodb.org/mongo-driver/v2 v2.4.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.42.0
@@ -38,7 +39,6 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tinylib/msgp v1.2.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect

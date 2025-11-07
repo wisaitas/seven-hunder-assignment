@@ -12,11 +12,10 @@ import (
 	"github.com/7-solutions/backend-challenge/internal/app"
 	"github.com/7-solutions/backend-challenge/internal/app/domain/entity"
 	"github.com/7-solutions/backend-challenge/internal/app/domain/repository"
-	"github.com/7-solutions/backend-challenge/internal/app/util"
 	"github.com/7-solutions/backend-challenge/pkg/db/redisx"
 	"github.com/7-solutions/backend-challenge/pkg/httpx"
+	"github.com/7-solutions/backend-challenge/pkg/jwtx"
 	"github.com/gofiber/fiber/v2"
-	jwtLib "github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -28,15 +27,18 @@ type Service interface {
 type service struct {
 	userRepository repository.UserRepository
 	redis          redisx.Redis
+	jwt            jwtx.Jwt
 }
 
 func NewService(
 	userRepository repository.UserRepository,
 	redis redisx.Redis,
+	jwt jwtx.Jwt,
 ) Service {
 	return &service{
 		userRepository: userRepository,
 		redis:          redis,
+		jwt:            jwt,
 	}
 }
 
@@ -76,20 +78,18 @@ func (s *service) Service(c *fiber.Ctx, request *Request) error {
 	refreshTokenExpired := timeNow.Add(time.Duration(app.Config.JWT.RefreshTTL) * time.Hour)
 
 	externalContext := entity.ExternalContext{
-		RegisteredClaims: jwtLib.RegisteredClaims{
-			Subject:   user.ID.Hex(),
-			ExpiresAt: jwtLib.NewNumericDate(accessTokenExpired),
-			IssuedAt:  jwtLib.NewNumericDate(timeNow),
-		},
+		Subject:   user.ID.Hex(),
+		ExpiresAt: accessTokenExpired,
+		IssuedAt:  timeNow,
 	}
 
-	accessToken, err := util.GenerateToken(externalContext, app.Config.JWT.Secret)
+	accessToken, err := s.jwt.Generate(externalContext, app.Config.JWT.Secret)
 	if err != nil {
 		return httpx.NewErrorResponse[any](c, http.StatusInternalServerError, err)
 	}
 
-	externalContext.ExpiresAt = jwtLib.NewNumericDate(refreshTokenExpired)
-	refreshToken, err := util.GenerateToken(externalContext, app.Config.JWT.Secret)
+	externalContext.ExpiresAt = refreshTokenExpired
+	refreshToken, err := s.jwt.Generate(externalContext, app.Config.JWT.Secret)
 	if err != nil {
 		return httpx.NewErrorResponse[any](c, http.StatusInternalServerError, err)
 	}

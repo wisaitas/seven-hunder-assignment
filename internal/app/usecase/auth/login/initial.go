@@ -13,7 +13,7 @@ func NewHandler(
 	redis redisx.Redis,
 	validator validatorx.Validator,
 ) *Handler {
-	service := NewService(userRepository, redis)
+	service := NewService(userRepository, redis, jwt)
 	handler := newHandler(service, validator)
 
 	return handler
