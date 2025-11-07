@@ -75,7 +75,7 @@ func (s *service) Service(c *fiber.Ctx, request *Request) error {
 
 	timeNow := time.Now()
 	accessTokenExpired := timeNow.Add(time.Duration(app.Config.JWT.AccessTTL) * time.Minute)
-	refreshTokenExpired := timeNow.Add(time.Duration(app.Config.JWT.RefreshTTL) * time.Hour)
+	refreshTokenExpired := timeNow.Add(time.Duration(app.Config.JWT.RefreshTTL) * time.Minute)
 
 	externalContext := entity.ExternalContext{
 		Subject:   user.ID.Hex(),

@@ -23,10 +23,10 @@ func NewUserRouter(
 func (r *UserRouter) Setup() {
 	userRouter := r.apiRouter.Group("/users")
 
-	userRouter.Get("/", r.userUseCase.GetUsers.Handle)
-	userRouter.Get("/:user_id", r.userUseCase.GetUserByID.Handle)
+	userRouter.Get("/", r.userUseCase.GetUsersMiddleware, r.userUseCase.GetUsers.Handle)
+	userRouter.Get("/:user_id", r.userUseCase.GetUserByIDMiddleware, r.userUseCase.GetUserByID.Handle)
 
-	userRouter.Patch("/:user_id", r.userUseCase.UpdateUser.Handle)
+	userRouter.Patch("/:user_id", r.userUseCase.UpdateUserMiddleware, r.userUseCase.UpdateUser.Handle)
 
-	userRouter.Delete("/:user_id", r.userUseCase.DeleteUser.Handle)
+	userRouter.Delete("/:user_id", r.userUseCase.DeleteUserMiddleware, r.userUseCase.DeleteUser.Handle)
 }

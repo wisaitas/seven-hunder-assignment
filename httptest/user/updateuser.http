@@ -1,5 +1,6 @@
 PATCH http://localhost:8080/api/v1/users/690d636bc64c01bf12e84d52
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwidHlwIjoiSldUIn0..iKDI_qt0yZV4AYIP.ZZWxaU3uVcZout9ebKFl3B_qO9kOYEUGHVysWLGZ-eSY6HAxGG2akuvJqfVbNc9oR6ysOJmkSQeLII9mz084wBUICHWgWfxNXpSVq-FSEbXDbinl_-PVMnZG7evq8dT5rOOCBDaahziRrm6CKlZusu4jH0OlYeXQ7M-fRZj1qPeU5d5345X_c3yXr1JBVQtmXw.yVrIu79Q1eZLD0sDnYTUsA
 
 {
     "name": "John Doe Updated",

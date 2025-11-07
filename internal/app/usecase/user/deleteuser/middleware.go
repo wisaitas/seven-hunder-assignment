@@ -1,4 +1,4 @@
-package logout
+package deleteuser
 
 import (
 	"github.com/7-solutions/backend-challenge/internal/app"

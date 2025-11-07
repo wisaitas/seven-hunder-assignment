@@ -17,6 +17,6 @@ func newUseCase(
 ) *useCase {
 	return &useCase{
 		authUseCase: auth.NewUseCase(repository.userRepository, sdk.jwt, client.redis, sdk.validator),
-		userUseCase: user.NewUseCase(repository.userRepository, sdk.validator),
+		userUseCase: user.NewUseCase(repository.userRepository, sdk.jwt, client.redis, sdk.validator),
 	}
 }

@@ -27,7 +27,7 @@ var Config struct {
 	} `envPrefix:"REDIS_"`
 	JWT struct {
 		Secret     string `env:"SECRET" envDefault:"7b39b4d1833bfb15d6bd4035d77cfc07"`
-		AccessTTL  int64  `env:"ACCESS_TTL" envDefault:"1"`
-		RefreshTTL int64  `env:"REFRESH_TTL" envDefault:"24"`
+		AccessTTL  int64  `env:"ACCESS_TTL" envDefault:"15"`
+		RefreshTTL int64  `env:"REFRESH_TTL" envDefault:"1440"`
 	} `envPrefix:"JWT_"`
 }

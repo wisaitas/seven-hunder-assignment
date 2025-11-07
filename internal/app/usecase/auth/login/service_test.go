@@ -38,20 +38,17 @@ func (s *loginTestSuite) SetupTest() {
 	s.service = login.NewService(s.mockUserRepo, s.mockRedis, s.mockJwt)
 	s.app = fiber.New()
 
-	// Set up default config for testing
-	app.Config.JWT.Secret = "test-secret-key-32-bytes-long!" // 32 bytes for AES-256
-	app.Config.JWT.AccessTTL = 15                            // 15 minutes
-	app.Config.JWT.RefreshTTL = 24                           // 24 hours
+	app.Config.JWT.Secret = "test-secret-key-32-bytes-long!"
+	app.Config.JWT.AccessTTL = 15
+	app.Config.JWT.RefreshTTL = 24
 }
 
-// Helper function to create fiber context for testing
 func (s *loginTestSuite) createTestContext() *fiber.Ctx {
 	ctx := s.app.AcquireCtx(&fasthttp.RequestCtx{})
 	return ctx
 }
 
 func (s *loginTestSuite) TestLoginSuccess() {
-	// Arrange
 	testEmail := "test@example.com"
 	testPassword := "password123"
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(testPassword), bcrypt.DefaultCost)
@@ -76,11 +73,9 @@ func (s *loginTestSuite) TestLoginSuccess() {
 	accessTokenKey := fmt.Sprintf("access_token:%s", testUser.ID.Hex())
 	refreshTokenKey := fmt.Sprintf("refresh_token:%s", testUser.ID.Hex())
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return user
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
@@ -88,17 +83,14 @@ func (s *loginTestSuite) TestLoginSuccess() {
 			*user = *testUser
 		})
 
-	// Mock Redis Del for attempts key
 	s.mockRedis.On("Del", mock.Anything, mock.MatchedBy(func(keys []string) bool {
 		return len(keys) == 1 && keys[0] == attemptsKey
 	})).Return(nil)
 
-	// Mock Redis Del for block count key
 	s.mockRedis.On("Del", mock.Anything, mock.MatchedBy(func(keys []string) bool {
 		return len(keys) == 1 && keys[0] == blockCountKey
 	})).Return(nil)
 
-	// Mock JWT Generate for access token
 	s.mockJwt.On("Generate",
 		mock.MatchedBy(func(claims interface{}) bool {
 			ec, ok := claims.(entity.ExternalContext)
@@ -107,7 +99,6 @@ func (s *loginTestSuite) TestLoginSuccess() {
 		app.Config.JWT.Secret).
 		Return("encrypted-access-token", nil).Once()
 
-	// Mock JWT Generate for refresh token
 	s.mockJwt.On("Generate",
 		mock.MatchedBy(func(claims interface{}) bool {
 			ec, ok := claims.(entity.ExternalContext)
@@ -116,22 +107,18 @@ func (s *loginTestSuite) TestLoginSuccess() {
 		app.Config.JWT.Secret).
 		Return("encrypted-refresh-token", nil).Once()
 
-	// Mock Redis Set for access token
 	s.mockRedis.On("Set", mock.Anything,
 		accessTokenKey,
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("time.Duration")).Return(nil)
 
-	// Mock Redis Set for refresh token
 	s.mockRedis.On("Set", mock.Anything,
 		refreshTokenKey,
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("time.Duration")).Return(nil)
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.mockUserRepo.AssertExpectations(s.T())
 	s.mockRedis.AssertExpectations(s.T())
@@ -139,7 +126,6 @@ func (s *loginTestSuite) TestLoginSuccess() {
 }
 
 func (s *loginTestSuite) TestLoginUserNotFound() {
-	// Arrange
 	testEmail := "notfound@example.com"
 	testPassword := "password123"
 
@@ -150,28 +136,22 @@ func (s *loginTestSuite) TestLoginUserNotFound() {
 
 	attemptsKey := fmt.Sprintf("login:attempts:%s", testEmail)
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return not found error
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(mongo.ErrNoDocuments)
 
-	// Mock Redis Get for attempts
 	s.mockRedis.On("Get", mock.Anything, attemptsKey).
 		Return("", errors.New("redis: nil"))
 
-	// Mock Redis Set for incrementing attempts
 	s.mockRedis.On("Set", mock.Anything,
 		attemptsKey,
 		"1",
 		15*time.Minute).Return(nil)
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.Require().Equal(fiber.StatusNotFound, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
@@ -179,7 +159,6 @@ func (s *loginTestSuite) TestLoginUserNotFound() {
 }
 
 func (s *loginTestSuite) TestLoginInvalidPassword() {
-	// Arrange
 	testEmail := "test@example.com"
 	testPassword := "password123"
 	wrongPassword := "wrongpassword"
@@ -202,11 +181,9 @@ func (s *loginTestSuite) TestLoginInvalidPassword() {
 
 	attemptsKey := fmt.Sprintf("login:attempts:%s", testEmail)
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return user
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
@@ -214,20 +191,16 @@ func (s *loginTestSuite) TestLoginInvalidPassword() {
 			*user = *testUser
 		})
 
-	// Mock Redis Get for attempts (first attempt)
 	s.mockRedis.On("Get", mock.Anything, attemptsKey).
 		Return("", errors.New("redis: nil"))
 
-	// Mock Redis Set for incrementing attempts
 	s.mockRedis.On("Set", mock.Anything,
 		attemptsKey,
 		"1",
 		15*time.Minute).Return(nil)
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.Require().Equal(fiber.StatusUnauthorized, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
@@ -235,7 +208,6 @@ func (s *loginTestSuite) TestLoginInvalidPassword() {
 }
 
 func (s *loginTestSuite) TestLoginMultipleFailedAttempts() {
-	// Arrange
 	testEmail := "test@example.com"
 	testPassword := "password123"
 	wrongPassword := "wrongpassword"
@@ -258,11 +230,9 @@ func (s *loginTestSuite) TestLoginMultipleFailedAttempts() {
 
 	attemptsKey := fmt.Sprintf("login:attempts:%s", testEmail)
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return user
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
@@ -270,20 +240,16 @@ func (s *loginTestSuite) TestLoginMultipleFailedAttempts() {
 			*user = *testUser
 		})
 
-	// Mock Redis Get for attempts (already 2 attempts)
 	s.mockRedis.On("Get", mock.Anything, attemptsKey).
 		Return("2", nil)
 
-	// Mock Redis Set for incrementing attempts to 3
 	s.mockRedis.On("Set", mock.Anything,
 		attemptsKey,
 		"3",
 		15*time.Minute).Return(nil)
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.Require().Equal(fiber.StatusUnauthorized, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
@@ -291,7 +257,6 @@ func (s *loginTestSuite) TestLoginMultipleFailedAttempts() {
 }
 
 func (s *loginTestSuite) TestLoginRepositoryError() {
-	// Arrange
 	testEmail := "test@example.com"
 	testPassword := "password123"
 
@@ -302,28 +267,22 @@ func (s *loginTestSuite) TestLoginRepositoryError() {
 
 	attemptsKey := fmt.Sprintf("login:attempts:%s", testEmail)
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return database error
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(errors.New("database connection error"))
 
-	// Mock Redis Get for attempts
 	s.mockRedis.On("Get", mock.Anything, attemptsKey).
 		Return("", errors.New("redis: nil"))
 
-	// Mock Redis Set for incrementing attempts
 	s.mockRedis.On("Set", mock.Anything,
 		attemptsKey,
 		"1",
 		15*time.Minute).Return(nil)
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.Require().Equal(fiber.StatusInternalServerError, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
@@ -331,7 +290,6 @@ func (s *loginTestSuite) TestLoginRepositoryError() {
 }
 
 func (s *loginTestSuite) TestLoginRedisSetError() {
-	// Arrange
 	testEmail := "test@example.com"
 	testPassword := "password123"
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(testPassword), bcrypt.DefaultCost)
@@ -355,11 +313,9 @@ func (s *loginTestSuite) TestLoginRedisSetError() {
 	blockCountKey := fmt.Sprintf("login:block_count:%s", testEmail)
 	accessTokenKey := fmt.Sprintf("access_token:%s", testUser.ID.Hex())
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return user
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
@@ -367,34 +323,27 @@ func (s *loginTestSuite) TestLoginRedisSetError() {
 			*user = *testUser
 		})
 
-	// Mock Redis Del for attempts key
 	s.mockRedis.On("Del", mock.Anything, mock.MatchedBy(func(keys []string) bool {
 		return len(keys) == 1 && keys[0] == attemptsKey
 	})).Return(nil)
 
-	// Mock Redis Del for block count key
 	s.mockRedis.On("Del", mock.Anything, mock.MatchedBy(func(keys []string) bool {
 		return len(keys) == 1 && keys[0] == blockCountKey
 	})).Return(nil)
 
-	// Mock JWT Generate for access token
 	s.mockJwt.On("Generate", mock.Anything, app.Config.JWT.Secret).
 		Return("encrypted-access-token", nil).Once()
 
-	// Mock JWT Generate for refresh token (generated before Redis Set is called)
 	s.mockJwt.On("Generate", mock.Anything, app.Config.JWT.Secret).
 		Return("encrypted-refresh-token", nil).Once()
 
-	// Mock Redis Set for access token - return error
 	s.mockRedis.On("Set", mock.Anything,
 		accessTokenKey,
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("time.Duration")).Return(errors.New("redis connection error"))
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.Require().Equal(fiber.StatusInternalServerError, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
@@ -403,7 +352,6 @@ func (s *loginTestSuite) TestLoginRedisSetError() {
 }
 
 func (s *loginTestSuite) TestLoginRedisDelError() {
-	// Arrange
 	testEmail := "test@example.com"
 	testPassword := "password123"
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(testPassword), bcrypt.DefaultCost)
@@ -425,11 +373,9 @@ func (s *loginTestSuite) TestLoginRedisDelError() {
 
 	attemptsKey := fmt.Sprintf("login:attempts:%s", testEmail)
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return user
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
@@ -437,15 +383,12 @@ func (s *loginTestSuite) TestLoginRedisDelError() {
 			*user = *testUser
 		})
 
-	// Mock Redis Del for attempts key - return error
 	s.mockRedis.On("Del", mock.Anything, mock.MatchedBy(func(keys []string) bool {
 		return len(keys) == 1 && keys[0] == attemptsKey
 	})).Return(errors.New("redis del error"))
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.Require().Equal(fiber.StatusInternalServerError, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
@@ -453,7 +396,6 @@ func (s *loginTestSuite) TestLoginRedisDelError() {
 }
 
 func (s *loginTestSuite) TestLoginIncrementFailedAttemptsRedisError() {
-	// Arrange
 	testEmail := "test@example.com"
 	testPassword := "password123"
 
@@ -464,28 +406,22 @@ func (s *loginTestSuite) TestLoginIncrementFailedAttemptsRedisError() {
 
 	attemptsKey := fmt.Sprintf("login:attempts:%s", testEmail)
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return not found error
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(mongo.ErrNoDocuments)
 
-	// Mock Redis Get for attempts
 	s.mockRedis.On("Get", mock.Anything, attemptsKey).
 		Return("", errors.New("redis: nil"))
 
-	// Mock Redis Set for incrementing attempts - return error
 	s.mockRedis.On("Set", mock.Anything,
 		attemptsKey,
 		"1",
 		15*time.Minute).Return(errors.New("redis set error"))
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.Require().Equal(fiber.StatusInternalServerError, ctx.Response().StatusCode())
 	s.mockUserRepo.AssertExpectations(s.T())
@@ -493,7 +429,6 @@ func (s *loginTestSuite) TestLoginIncrementFailedAttemptsRedisError() {
 }
 
 func (s *loginTestSuite) TestLoginValidateTokenContent() {
-	// Arrange
 	testEmail := "test@example.com"
 	testPassword := "password123"
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(testPassword), bcrypt.DefaultCost)
@@ -521,11 +456,9 @@ func (s *loginTestSuite) TestLoginValidateTokenContent() {
 	var capturedAccessTokenValue string
 	var capturedRefreshTokenValue string
 
-	// Create test context
 	ctx := s.createTestContext()
 	defer s.app.ReleaseCtx(ctx)
 
-	// Mock FindByEmail - return user
 	s.mockUserRepo.On("FindByEmail", ctx, testEmail, mock.AnythingOfType("*entity.User")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
@@ -533,24 +466,20 @@ func (s *loginTestSuite) TestLoginValidateTokenContent() {
 			*user = *testUser
 		})
 
-	// Mock Redis Del for attempts key
 	s.mockRedis.On("Del", mock.Anything, mock.MatchedBy(func(keys []string) bool {
 		return len(keys) == 1 && keys[0] == attemptsKey
 	})).Return(nil)
 
-	// Mock Redis Del for block count key
 	s.mockRedis.On("Del", mock.Anything, mock.MatchedBy(func(keys []string) bool {
 		return len(keys) == 1 && keys[0] == blockCountKey
 	})).Return(nil)
 
-	// Mock JWT Generate - return tokens
 	s.mockJwt.On("Generate", mock.Anything, app.Config.JWT.Secret).
 		Return("encrypted-access-token", nil).Once()
 
 	s.mockJwt.On("Generate", mock.Anything, app.Config.JWT.Secret).
 		Return("encrypted-refresh-token", nil).Once()
 
-	// Mock Redis Set for access token - capture value
 	s.mockRedis.On("Set", mock.Anything,
 		accessTokenKey,
 		mock.AnythingOfType("string"),
@@ -560,7 +489,6 @@ func (s *loginTestSuite) TestLoginValidateTokenContent() {
 		}).
 		Return(nil)
 
-	// Mock Redis Set for refresh token - capture value
 	s.mockRedis.On("Set", mock.Anything,
 		refreshTokenKey,
 		mock.AnythingOfType("string"),
@@ -570,15 +498,12 @@ func (s *loginTestSuite) TestLoginValidateTokenContent() {
 		}).
 		Return(nil)
 
-	// Act
 	err := s.service.Service(ctx, request)
 
-	// Assert
 	s.Require().NoError(err)
 	s.Require().NotEmpty(capturedAccessTokenValue)
 	s.Require().NotEmpty(capturedRefreshTokenValue)
 
-	// Verify the stored user context can be unmarshaled
 	var userContext entity.UserContext
 	err = json.Unmarshal([]byte(capturedAccessTokenValue), &userContext)
 	s.Require().NoError(err)

@@ -34,6 +34,6 @@ func NewUseCase(
 		LoginMiddleware: login.NewMiddleware(jwt, redis, validator),
 
 		Logout:           logout.NewHandler(redis),
-		LogoutMiddleware: logout.NewMiddleware(jwt, redis, validator),
+		LogoutMiddleware: logout.NewMiddleware(jwt, redis),
 	}
 }
