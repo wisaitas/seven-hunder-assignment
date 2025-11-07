@@ -1,0 +1,9 @@
+all: false
+dir: "{{.InterfaceDir}}"
+filename: "mock.go"
+pkgname: "{{.SrcPackageName}}"
+packages:
+  .:
+    config:
+      recursive: True
+      all: True
