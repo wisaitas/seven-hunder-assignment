@@ -6,7 +6,6 @@
 
 ```
 docker-compose up -d
-
 ```
 
 3. install extension `REST Client`
