@@ -7,10 +7,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/7-solutions/backend-challenge/internal/app"
+	"github.com/7-solutions/backend-challenge/internal/app/domain/entity"
 	"github.com/caarlos0/env/v11"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func init() {
@@ -53,6 +56,10 @@ func New() *App {
 
 func (i *App) Run() {
 	go func() {
+		i.backgroundProcess()
+	}()
+
+	go func() {
 		if err := i.FiberApp.Listen(fmt.Sprintf(":%d", app.Config.Service.Port)); err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
@@ -77,4 +84,16 @@ func (i *App) Close() {
 	}
 
 	log.Println("gracefully shutdown app")
+}
+
+func (i *App) backgroundProcess() {
+	for {
+		time.Sleep(10 * time.Second)
+
+		count, err := i.Client.mongoDB.Database(app.Config.MongoDB.Database).Collection(entity.User{}.CollectionName()).CountDocuments(context.Background(), bson.M{})
+		if err != nil {
+			log.Fatalf("failed to count users: %v", err)
+		}
+		log.Printf("number of users: %d", count)
+	}
 }
