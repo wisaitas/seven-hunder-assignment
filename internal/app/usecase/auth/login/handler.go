@@ -24,10 +24,10 @@ func newHandler(
 }
 
 func (h *Handler) Handle(c *fiber.Ctx) error {
-	req, ok := c.Locals("req").(*Request)
+	req, ok := c.Locals("req").(Request)
 	if !ok {
 		return httpx.NewErrorResponse[any](c, fiber.StatusInternalServerError, errors.New("request not found"))
 	}
 
-	return h.service.Service(c, req)
+	return h.service.Service(c, &req)
 }

@@ -13,22 +13,68 @@ services:
       - mongo_config:/data/configdb
     networks:
       - backend-challenge-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
   redis:
     image: redis:8.2-alpine
     container_name: redis
+    command: redis-server --requirepass password
     ports:
       - 6379:6379
-    networks:
-      - backend-challenge-network
     volumes:
       - redis_data:/data
-  # api:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: app
-  #   ports:
-  #     - 8080:8080
+    networks:
+      - backend-challenge-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "password", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SERVICE_PORT=8080
+      - SERVICE_NAME=backend-challenge-compose
+      - SERVICE_BODY_LIMIT=10
+      - SERVICE_READ_TIMEOUT=10s
+      - SERVICE_WRITE_TIMEOUT=10s
+      - SERVICE_MASK_MAP=email:***,password:*******,confirm_password:*******
+      - MONGODB_USERNAME=root
+      - MONGODB_PASSWORD=password
+      - MONGODB_HOST=mongo
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=backend-challenge
+      - MONGODB_AUTH_SOURCE=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=password
+      - REDIS_DB=0
+      - JWT_SECRET=secret-key-compose
+      - JWT_ACCESS_TTL=15
+      - JWT_REFRESH_TTL=24
+    container_name: app
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    networks:
+      - backend-challenge-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/livez"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
 volumes:
   mongo_data:

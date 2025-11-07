@@ -9,7 +9,7 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 COPY cmd/app/ ./cmd/app
 COPY internal/app/ ./internal/app
-COPY data ./data
+COPY pkg/ ./pkg
 
 RUN go mod tidy
 
@@ -24,7 +24,6 @@ RUN addgroup -g 1000 appgroup && \
 
 WORKDIR /app
 
-COPY --from=builder /app/data ./data
 COPY --from=builder /app/app .
 
 RUN chown -R appuser:appgroup /app

@@ -2,6 +2,15 @@ POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "email": "john.doe@example.com",
+    "email": "john.doe1@example.com",
+    "password": "password"
+}
+
+### Login User Updated
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "john.doe.updated@example.com",
     "password": "password"
 }

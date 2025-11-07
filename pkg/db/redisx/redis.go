@@ -27,7 +27,7 @@ type Redis interface {
 	Client() *redisLib.Client
 }
 
-type redis struct {
+type redisx struct {
 	client *redisLib.Client
 }
 
@@ -38,12 +38,12 @@ func NewRedis(ctx context.Context, config *redisLib.Options) (Redis, error) {
 		return nil, fmt.Errorf("[redisx] : %w", err)
 	}
 
-	return &redis{
+	return &redisx{
 		client: client,
 	}, nil
 }
 
-func (r *redis) TTL(ctx context.Context, key string) (time.Duration, error) {
+func (r *redisx) TTL(ctx context.Context, key string) (time.Duration, error) {
 	ttl, err := r.client.TTL(ctx, key).Result()
 	if err != nil {
 		return time.Duration(0), fmt.Errorf("[redisx] : %w", err)
@@ -52,7 +52,7 @@ func (r *redis) TTL(ctx context.Context, key string) (time.Duration, error) {
 	return ttl, nil
 }
 
-func (r *redis) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+func (r *redisx) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	if err := r.client.Set(ctx, key, value, expiration).Err(); err != nil {
 		return fmt.Errorf("[redisx] : %w", err)
 	}
@@ -60,7 +60,7 @@ func (r *redis) Set(ctx context.Context, key string, value interface{}, expirati
 	return nil
 }
 
-func (r *redis) Get(ctx context.Context, key string) (string, error) {
+func (r *redisx) Get(ctx context.Context, key string) (string, error) {
 	value, err := r.client.Get(ctx, key).Result()
 	if err != nil {
 		return "", fmt.Errorf("[redisx] : %w", err)
@@ -69,7 +69,7 @@ func (r *redis) Get(ctx context.Context, key string) (string, error) {
 	return value, nil
 }
 
-func (r *redis) Del(ctx context.Context, keys ...string) error {
+func (r *redisx) Del(ctx context.Context, keys ...string) error {
 	if err := r.client.Del(ctx, keys...).Err(); err != nil {
 		return fmt.Errorf("[redisx] : %w", err)
 	}
@@ -77,7 +77,7 @@ func (r *redis) Del(ctx context.Context, keys ...string) error {
 	return nil
 }
 
-func (r *redis) Exists(ctx context.Context, keys ...string) (bool, error) {
+func (r *redisx) Exists(ctx context.Context, keys ...string) (bool, error) {
 	exists, err := r.client.Exists(ctx, keys...).Result()
 	if err != nil {
 		return false, fmt.Errorf("[redisx] : %w", err)
@@ -86,6 +86,6 @@ func (r *redis) Exists(ctx context.Context, keys ...string) (bool, error) {
 	return exists > 0, nil
 }
 
-func (r *redis) Client() *redisLib.Client {
+func (r *redisx) Client() *redisLib.Client {
 	return r.client
 }

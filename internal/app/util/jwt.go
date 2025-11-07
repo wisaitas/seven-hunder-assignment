@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/7-solutions/backend-challenge/internal/app/domain/entity"
 	"github.com/7-solutions/backend-challenge/pkg/db/redisx"
@@ -30,7 +29,7 @@ func AuthAccessToken(c *fiber.Ctx, redis redisx.Redis, jwt jwtx.Jwt, secret stri
 		return fmt.Errorf("[util-auth] %w", err)
 	}
 
-	userContextJSON, err := redis.Get(context.Background(), fmt.Sprintf("access_token:%s", tokenContext.ID))
+	userContextJSON, err := redis.Get(context.Background(), fmt.Sprintf("access_token:%s", tokenContext.Subject))
 	if err != nil {
 		if err == redisLib.Nil {
 			return fmt.Errorf("[util-auth] session not found")
@@ -62,7 +61,7 @@ func AuthRefreshToken(c *fiber.Ctx, redis redisx.Redis, jwt jwtx.Jwt, secret str
 		return fmt.Errorf("[util-auth] %w", err)
 	}
 
-	userContextJSON, err := redis.Get(context.Background(), fmt.Sprintf("refresh_token:%s", tokenContext.ID))
+	userContextJSON, err := redis.Get(context.Background(), fmt.Sprintf("refresh_token:%s", tokenContext.Subject))
 	if err != nil {
 		if err == redisLib.Nil {
 			return fmt.Errorf("[util-auth] session not found")
@@ -80,12 +79,8 @@ func AuthRefreshToken(c *fiber.Ctx, redis redisx.Redis, jwt jwtx.Jwt, secret str
 	return nil
 }
 
-func GenerateToken(data map[string]interface{}, exp int64, secret string) (string, error) {
-	claim := jwtLib.MapClaims(data)
-	claim["exp"] = exp
-	claim["iat"] = time.Now().Unix()
-
-	token := jwtLib.NewWithClaims(jwtLib.SigningMethodHS256, claim)
+func GenerateToken(data entity.ExternalContext, secret string) (string, error) {
+	token := jwtLib.NewWithClaims(jwtLib.SigningMethodHS256, data)
 
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {

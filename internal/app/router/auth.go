@@ -22,5 +22,8 @@ func NewAuthRouter(
 
 func (r *AuthRouter) Setup() {
 	userRouter := r.apiRouter.Group("/auth")
+
+	userRouter.Post("/login", r.authUseCase.LoginMiddleware, r.authUseCase.Login.Handle)
+	userRouter.Post("/logout", r.authUseCase.LogoutMiddleware, r.authUseCase.Logout.Handle)
 	userRouter.Post("/register", r.authUseCase.Register.Handle)
 }

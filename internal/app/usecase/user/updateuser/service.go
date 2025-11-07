@@ -47,11 +47,11 @@ func (s *service) Service(c *fiber.Ctx, userID bson.ObjectID, request *Request) 
 	}
 
 	if request.Email != nil {
-		existingUser, err := s.userRepository.FindByEmail(c, *request.Email)
-		if err != nil {
+		existingUser := &entity.User{}
+		if err := s.userRepository.FindByEmail(c, *request.Email, existingUser); err != nil {
 			return httpx.NewErrorResponse[any](c, fiber.StatusInternalServerError, err)
 		}
-		if existingUser != nil && existingUser.ID != userID {
+		if existingUser.ID != userID {
 			return httpx.NewErrorResponse[any](c, fiber.StatusConflict, errors.New("email already exists"))
 		}
 		updates["email"] = *request.Email

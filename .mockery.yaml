@@ -1,9 +1,14 @@
 all: false
 dir: "{{.InterfaceDir}}"
-filename: "mock.go"
 pkgname: "{{.SrcPackageName}}"
 packages:
-  .:
+  ./internal/app/domain/repository:
     config:
       recursive: True
       all: True
+      filename: "{{.InterfaceName | snakecase}}_mock.go"
+  ./pkg:
+    config:
+      recursive: True
+      all: True
+      filename: "mock.go"

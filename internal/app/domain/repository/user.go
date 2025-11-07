@@ -13,7 +13,7 @@ import (
 
 type UserRepository interface {
 	CreateUser(c *fiber.Ctx, user *entity.User) error
-	FindByEmail(c *fiber.Ctx, email string) (*entity.User, error)
+	FindByEmail(c *fiber.Ctx, email string, user *entity.User) error
 	FindAllPaginated(c *fiber.Ctx, filter bson.M, sortField string, sortOrder int, page, pageSize int) ([]*entity.User, bool, bool, error)
 	FindByID(c *fiber.Ctx, filter bson.M, user *entity.User) error
 	UpdateUser(c *fiber.Ctx, userID bson.ObjectID, currentVersion int, updates bson.M) error
@@ -39,16 +39,8 @@ func (r *userRepository) CreateUser(c *fiber.Ctx, user *entity.User) error {
 	return nil
 }
 
-func (r *userRepository) FindByEmail(c *fiber.Ctx, email string) (*entity.User, error) {
-	var user entity.User
-	err := r.mongodb.FindOne(c.Context(), bson.M{"email": email}).Decode(&user)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &user, nil
+func (r *userRepository) FindByEmail(c *fiber.Ctx, email string, user *entity.User) error {
+	return r.mongodb.FindOne(c.Context(), bson.M{"email": email}).Decode(user)
 }
 
 func (r *userRepository) FindAllPaginated(
