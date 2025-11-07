@@ -1,0 +1,40 @@
+services:
+  mongo:
+    image: mongodb/mongodb-community-server:7.0-ubi8
+    container_name: mongo
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: backend-challenge
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+    networks:
+      - backend-challenge-network
+  redis:
+    image: redis:8.2-alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    networks:
+      - backend-challenge-network
+    volumes:
+      - redis_data:/data
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: app
+  #   ports:
+  #     - 8080:8080
+
+volumes:
+  mongo_data:
+  mongo_config:
+  redis_data:
+
+networks:
+  backend-challenge-network:
+    driver: bridge
