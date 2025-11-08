@@ -39,6 +39,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: app
     environment:
       - SERVICE_PORT=8080
       - SERVICE_NAME=backend-challenge-compose
@@ -59,7 +60,6 @@ services:
       - JWT_SECRET=83d99c3dc3aedc05235b574a97242e44
       - JWT_ACCESS_TTL=15
       - JWT_REFRESH_TTL=24
-    container_name: app
     depends_on:
       mongo:
         condition: service_healthy
